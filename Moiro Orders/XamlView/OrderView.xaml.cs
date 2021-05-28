@@ -32,9 +32,9 @@ namespace Moiro_Orders.XamlView
             if (PublicResources.Im.Admin)
             {
                 AdminButtons.IsEnabled = true;
-                UserButtons.IsEnabled = false;
+
                 NotConfirmBorder.Visibility = Visibility.Hidden;
-                addOrder.Visibility = Visibility.Hidden;
+
                 List<string> sortList = new List<string>
                 {
                     "Сначала новые",
@@ -172,23 +172,23 @@ namespace Moiro_Orders.XamlView
 
         private void SaveOrder_Click(object sender, RoutedEventArgs e) //user
         {
-                if (click)
+            if (click)
+            {
+                click = false;
+                Task.Run(() => ClickSaver());
+                if (isProblem)
                 {
-                    click = false;
-                    Task.Run(() => ClickSaver());
-                    if (isProblem)
-                    {
-                        UpdateOrderAsync().GetAwaiter();
-                    }
-                    else
-                    {
-                        CreateNewOrder().GetAwaiter();
-                    }
+                    UpdateOrderAsync().GetAwaiter();
                 }
-                OrderDetails.IsEnabled = false;
-                OrdersButtonPanel.IsEnabled = true;
-                datePick.IsEnabled = true;
-                listOrders.IsEnabled = true;
+                else
+                {
+                    CreateNewOrder().GetAwaiter();
+                }
+            }
+            OrderDetails.IsEnabled = false;
+            OrdersButtonPanel.IsEnabled = true;
+            datePick.IsEnabled = true;
+            listOrders.IsEnabled = true;
         }
 
         private void AcceptCompleteOrder_Click(object sender, RoutedEventArgs e) //user
@@ -240,7 +240,7 @@ namespace Moiro_Orders.XamlView
             if (CountNotConfirmed.Text != "0")
             {
                 PublicResources.ordersCts.Cancel();
-                NotConfirmedOrders().GetAwaiter();               
+                NotConfirmedOrders().GetAwaiter();
                 CloseNotConfirmOrders.Visibility = Visibility.Visible;
                 addOrder.Visibility = Visibility.Hidden;
                 datePick.Visibility = Visibility.Hidden;
@@ -291,7 +291,7 @@ namespace Moiro_Orders.XamlView
             }
         }
 
-       
+
 
         private void OrdersList_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) //cancel (selected)
         {
@@ -324,7 +324,7 @@ namespace Moiro_Orders.XamlView
                 UserNameView.Text = selectedOrder.UserName;
                 DateView.Text = selectedOrder.Date.ToString();
                 LoginView.Text = selectedOrder.UserLogin;
-                RoomView.Text = selectedOrder.Room.ToString();
+                RoomView.Text = selectedOrder?.Room.ToString();
                 AdminDescription.Text = selectedOrder.AdminComment;
                 PublicResources.ordersCts.Cancel();
                 GetStatusesList().GetAwaiter();
@@ -375,7 +375,7 @@ namespace Moiro_Orders.XamlView
 
         private void AdminDescription_KeyDown(object sender, KeyEventArgs e) //admin, for long comment 
         {
-            if (e.Key == Key.LeftCtrl || e.Key == Key.RightCtrl )
+            if (e.Key == Key.LeftCtrl || e.Key == Key.RightCtrl)
             {
                 if (AdminDescription.LineCount <= 5)
                 {
@@ -411,7 +411,7 @@ namespace Moiro_Orders.XamlView
         //User Metods
 
         async Task UpdateOrderAsync()
-        {           
+        {
             IUser user = new CurrentUser();
             var order = await user.GetOrderById(selectedOrder.Id);
             try
@@ -433,13 +433,19 @@ namespace Moiro_Orders.XamlView
             IUser user = new CurrentUser();
             try
             {
+                int statusId = 1;
+                if (PublicResources.Im.Admin)
+                {
+                    statusId = 3;
+                }
+
                 var status = await user.CreateOrder(new Order
                 {
                     Date = DateTime.Now,
                     Description = description.Text,
                     UserId = PublicResources.Im.Id,
                     Problem = problem.Text,
-                    StatusId = 1
+                    StatusId = statusId
                 });
             }
             catch { }
@@ -521,7 +527,7 @@ namespace Moiro_Orders.XamlView
                     order.AdminComment = AdminDescription.Text;
                     order.AdminId = PublicResources.Im.Id;
                 }
-                catch { }                              
+                catch { }
                 var status = await admin.EditOrder(order);
                 ordersTmp.Remove(selectedOrder);
                 listOrders.ItemsSource = ordersTmp;
@@ -605,7 +611,7 @@ namespace Moiro_Orders.XamlView
                     try
                     {
                         orders = await user.GetOrdersListOfDate(PublicResources.Im.Id, selectedDate);
-                         
+
                     }
                     catch
                     {
@@ -649,7 +655,7 @@ namespace Moiro_Orders.XamlView
                             }
                         }
                     };
-                   await listOrders.Dispatcher.BeginInvoke(action);
+                    await listOrders.Dispatcher.BeginInvoke(action);
                     await Task.Delay(15000, cancellationToken);
                 }
             }
