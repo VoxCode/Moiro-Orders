@@ -392,6 +392,10 @@ namespace Moiro_Orders.XamlView
             PublicResources.ordersCts.Cancel();
             var selectedDate = datePick.SelectedDate.Value;
             PublicResources.ordersCts = new CancellationTokenSource();
+            if (PublicResources.Im.Admin)
+            {
+                Task.Run(() => AutoUpdateOrdersListAdmin(PublicResources.ordersCts.Token, selectedDate));
+            }
             Task.Run(() => AutoUpdateOrdersListUser(PublicResources.ordersCts.Token, selectedDate));
         }
 
