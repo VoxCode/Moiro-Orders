@@ -396,7 +396,10 @@ namespace Moiro_Orders.XamlView
             {
                 Task.Run(() => AutoUpdateOrdersListAdmin(PublicResources.ordersCts.Token, selectedDate));
             }
-            Task.Run(() => AutoUpdateOrdersListUser(PublicResources.ordersCts.Token, selectedDate));
+            else
+            {
+                Task.Run(() => AutoUpdateOrdersListUser(PublicResources.ordersCts.Token, selectedDate));
+            }
         }
 
         void UpdateOrdersListAdmin()
