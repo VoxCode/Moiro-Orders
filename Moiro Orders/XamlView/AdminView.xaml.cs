@@ -337,6 +337,7 @@ namespace Moiro_Orders.XamlView
             var arr = new List<Order>[6];
             List<Order> orders = new List<Order>();
             IAdmin admin = new CurrentUser();
+            
             orders = await admin.GetOrdersByStatus(3, start, end);
             arr[3] = orders;
             orders = await admin.GetOrdersByStatus(1, start, end);
@@ -482,7 +483,14 @@ namespace Moiro_Orders.XamlView
                     oTable.Cell(r, 1).Range.Text = arr[3][r - 2].Id.ToString();
                     oTable.Cell(r, 2).Range.Text = arr[3][r - 2].Date.ToString();
                     oTable.Cell(r, 3).Range.Text = arr[3][r - 2].UserName.ToString();
-                    oTable.Cell(r, 4).Range.Text = arr[3][r - 2].AdminName.ToString();
+                    if (arr[3][r - 2].AdminName != null)
+                    {
+                        oTable.Cell(r, 4).Range.Text = arr[3][r - 2].AdminName.ToString();
+                    }
+                    else
+                    {
+                        oTable.Cell(r, 4).Range.Text = " ";
+                    }
                     oTable.Cell(r, 5).Range.Text = arr[3][r - 2].Problem.ToString();
                     oTable.Cell(r, 6).Range.Text = arr[3][r - 2].CompletionDate.ToString();
                 }
@@ -708,8 +716,22 @@ namespace Moiro_Orders.XamlView
                     oTable.Cell(r, 3).Range.Text = arr[4][r - 2].UserName.ToString();
                     oTable.Cell(r, 4).Range.Text = arr[4][r - 2].Problem.ToString();
                     oTable.Cell(r, 5).Range.Text = arr[4][r - 2].Description.ToString();
-                    oTable.Cell(r, 6).Range.Text = arr[4][r - 2].AdminName.ToString();
-                    oTable.Cell(r, 7).Range.Text = arr[4][r - 2].AdminComment.ToString();
+                    if (arr[4][r - 2].AdminName != null)
+                    {
+                        oTable.Cell(r, 6).Range.Text = arr[4][r - 2].AdminName.ToString();
+                    }
+                    else
+                    {
+                        oTable.Cell(r, 6).Range.Text = " ";
+                    }
+                    if (arr[4][r - 2].AdminName != null)
+                    {
+                        oTable.Cell(r, 7).Range.Text = arr[4][r - 2].AdminComment.ToString();
+                    }
+                    else
+                    {
+                        oTable.Cell(r, 7).Range.Text = " ";
+                    }
                 }
                 oTable.Rows[1].Range.Font.Bold = 1;
                 oTable.Rows[1].Alignment = Word.WdRowAlignment.wdAlignRowCenter;
